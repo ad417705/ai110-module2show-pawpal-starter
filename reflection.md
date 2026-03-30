@@ -2,6 +2,12 @@
 
 ## 1. System Design
 
+Core features:
+
+- Adding pets
+- Add/Editing task
+- Generate daily schedule/plans
+
 **a. Initial design**
 
 - Briefly describe your initial UML design.
