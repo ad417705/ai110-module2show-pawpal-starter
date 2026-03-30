@@ -121,3 +121,42 @@ def test_schedule_has_conflicts_field():
     schedule = Scheduler(owner).generate_schedule()
     assert hasattr(schedule, "conflicts")
     assert len(schedule.conflicts) == 1
+
+
+# --- Sorting correctness (chronological order) ---
+
+def test_generate_schedule_three_tasks_chronological_order():
+    pet = Pet("Buddy", "dog", 3)
+    t1 = Task("Afternoon Walk", 10, "high", "exercise", time="2:00 PM")
+    t2 = Task("Morning Feed", 10, "high", "feeding", time="7:00 AM")
+    t3 = Task("Midday Play", 10, "high", "exercise", time="12:00 PM")
+    owner = Owner("Alex", 60, pet=pet, tasks=[t1, t2, t3])
+    schedule = Scheduler(owner).generate_schedule()
+    assert schedule.scheduled_tasks[0].title == "Morning Feed"
+    assert schedule.scheduled_tasks[1].title == "Midday Play"
+    assert schedule.scheduled_tasks[2].title == "Afternoon Walk"
+
+
+# --- Recurrence logic ---
+
+def test_mark_complete_daily_task_creates_next_day_task():
+    pet = Pet("Buddy", "dog", 3)
+    task = Task("Daily Walk", 30, "high", "exercise", time="8:00 AM", frequency="daily")
+    owner = Owner("Alex", 60, pet=pet, tasks=[task])
+    scheduler = Scheduler(owner)
+    scheduler.mark_complete(task)
+    # Marking a daily task complete should add a new incomplete copy for the next occurrence
+    incomplete = scheduler.filter_by_status(completed=False)
+    assert len(incomplete) == 1
+    assert incomplete[0].title == "Daily Walk"
+    assert incomplete[0].completed is False
+
+
+# --- Conflict detection: duplicate (same) start time ---
+
+def test_detect_conflicts_same_start_time():
+    t1 = Task("Walk", 30, "high", "exercise", time="8:00 AM")
+    t2 = Task("Feed", 20, "high", "feeding", time="8:00 AM")
+    conflicts = detect_conflicts([t1, t2])
+    assert len(conflicts) == 1
+    assert (t1, t2) in conflicts

@@ -185,11 +185,13 @@ if st.button("Generate schedule", type="primary"):
         owner = Owner(owner_name, int(available_minutes), pet=pet, tasks=task_objects)
         scheduler = Scheduler(owner)
         st.session_state.schedule = scheduler.generate_schedule()
+        st.session_state.scheduler = scheduler
         st.session_state.owner = owner
         st.session_state.pet = pet
 
 if "schedule" in st.session_state:
     schedule: Schedule = st.session_state.schedule
+    scheduler: Scheduler = st.session_state.scheduler
     owner = st.session_state.owner
     pet = st.session_state.pet
 
@@ -201,13 +203,38 @@ if "schedule" in st.session_state:
 
     if schedule.scheduled_tasks:
         st.markdown("#### Scheduled tasks")
-        for task in schedule.scheduled_tasks:
-            label = f"**{task.title}** — {task.duration_minutes} min | {task.priority} priority | {task.category}"
-            if task.time:
-                label += f" | {task.time}"
-            if task.description:
-                label += f"\n\n_{task.description}_"
-            st.markdown(f"- {label}")
+        for i, task in enumerate(schedule.scheduled_tasks):
+            col_label, col_btn = st.columns([5, 1])
+            with col_label:
+                status_icon = "✅" if task.completed else "⬜"
+                label = f"{status_icon} **{task.title}** — {task.duration_minutes} min | {task.priority} | {task.category}"
+                if task.time:
+                    label += f" | {task.time}"
+                if task.frequency:
+                    label += f" | 🔁 {task.frequency}"
+                if task.description:
+                    label += f"  \n_{task.description}_"
+                st.markdown(label)
+            with col_btn:
+                if not task.completed and st.button("Done", key=f"done_{i}"):
+                        scheduler.mark_complete(task)
+                        # Sync Task objects back to session_state.tasks dicts
+                        st.session_state.tasks = [
+                            {
+                                "title": t.title,
+                                "duration_minutes": t.duration_minutes,
+                                "priority": t.priority,
+                                "category": t.category,
+                                "time": t.time,
+                                "description": t.description,
+                                "frequency": t.frequency,
+                                "completed": t.completed,
+                                "pet_name": t.pet.name if t.pet else pet.name,
+                            }
+                            for t in scheduler.owner.tasks
+                        ]
+                        st.session_state.pop("schedule", None)
+                        st.rerun()
 
     if schedule.skipped_tasks:
         st.markdown("#### Skipped (not enough time)")

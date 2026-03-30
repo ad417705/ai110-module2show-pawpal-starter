@@ -150,6 +150,15 @@ class Scheduler:
         """Replace the task at task_index with updated_task."""
         self.owner.tasks[task_index] = updated_task
 
+    def mark_complete(self, task: Task) -> None:
+        """Mark a task complete. If it has frequency='daily', append a new incomplete copy for the next occurrence."""
+        task.mark_complete()
+        if task.frequency == "daily":
+            import copy
+            next_task = copy.copy(task)
+            next_task.completed = False
+            self.owner.tasks.append(next_task)
+
     def generate_schedule(self) -> Schedule:
         """Build and return a Schedule based on priority and available time."""
         _LATEST = datetime.strptime("23:59", "%H:%M").time()
