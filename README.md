@@ -1,6 +1,6 @@
-# PawPal+ (Module 2 Project)
+# PawPal+
 
-You are building **PawPal+**, a Streamlit app that helps a pet owner plan care tasks for their pet.
+**PawPal+** is a Streamlit app that helps a pet owner plan and track daily care tasks for their pet.
 
 ## Scenario
 
@@ -33,7 +33,7 @@ Tasks are sorted by priority score (high → medium → low) first, then by thei
 The task list can be filtered by pet name (case-insensitive, stored per-task so it survives owner name edits) and by completion status (All / Incomplete / Completed).
 
 ### Recurring task support
-Each task has an optional `frequency` field (e.g. `daily`, `weekly`) that can be set when adding or editing a task. The value is stored and displayed alongside the task.
+Each task has an optional `frequency` field (e.g. `daily`, `weekly`). When a `daily` task is marked complete, a fresh copy is automatically appended for the next occurrence.
 
 ### Conflict detection
 After building the schedule, the app runs a sweep-line algorithm over all scheduled tasks that have a start time. Any pair whose time windows overlap is reported in a "Conflict Check" section, showing both task names and their times.
@@ -51,12 +51,14 @@ source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-### Suggested workflow
+### Run the app
 
-1. Read the scenario carefully and identify requirements and edge cases.
-2. Draft a UML diagram (classes, attributes, methods, relationships).
-3. Convert UML into Python class stubs (no logic yet).
-4. Implement scheduling logic in small increments.
-5. Add tests to verify key behaviors.
-6. Connect your logic to the Streamlit UI in `app.py`.
-7. Refine UML so it matches what you actually built.
+```bash
+streamlit run app.py
+```
+
+### Run tests
+
+```bash
+pytest
+```
