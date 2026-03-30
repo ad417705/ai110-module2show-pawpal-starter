@@ -18,7 +18,7 @@ Core features:
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
 
----
+--- a. So the classes I chose are Pet, Owner, Task, Schedule, and Scheduler. The first 4 are mainly data containers and scheduler is a regular class that which uses and owns other objects. It's pretty intuitive in terms of what owns, uses, produces, etc... what, for example, owner owns pet.
 
 ## 2. Scheduling Logic and Tradeoffs
 
